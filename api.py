@@ -14,7 +14,7 @@ config = {
 
 class BasePayment(object):
     @classmethod
-    def send_request(cls, url, headers=None, body=None):
+    def send_request(cls, url, headers=None, body=None, proxy):
         if not headers:
             headers = {}
         headers['User-Agent'] = "Yandex.Money.SDK/Python"
@@ -23,7 +23,7 @@ class BasePayment(object):
             body = {}
         full_url = config['MONEY_URL'] + url
         return cls.process_result(
-            requests.post(full_url, headers=headers, data=body)
+            requests.post(full_url, headers=headers, data=body, proxies=proxy)
         )
 
     @classmethod
@@ -38,13 +38,14 @@ class BasePayment(object):
 
 
 class Wallet(BasePayment):
-    def __init__(self, access_token):
+    def __init__(self, access_token, proxy):
         self.access_token = access_token
+        self.proxy = {'https': proxy}
 
     def _send_authenticated_request(self, url, options=None):
         return self.send_request(url, {
             "Authorization": "Bearer {}".format(self.access_token)
-            }, options)
+            }, options, proxy=self.proxy)
 
     def account_info(self):
         """
@@ -244,7 +245,7 @@ class Wallet(BasePayment):
             "grant_type": "authorization_code",
             "redirect_uri": redirect_uri,
             "client_secret": client_secret
-            }
+            }, proxies=self.proxy
         ))
 
     @classmethod
