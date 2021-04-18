@@ -43,9 +43,9 @@ class Wallet(BasePayment):
         self.proxy = {'https': proxy}
 
     def _send_authenticated_request(self, url, options=None):
-        return self.send_request(url, proxy=self.proxy, {
+        return self.send_request(url=url, proxy=self.proxy, headers={
             "Authorization": "Bearer {}".format(self.access_token)
-            }, options)
+            }, body=options)
 
     def account_info(self):
         """
@@ -269,7 +269,7 @@ class Wallet(BasePayment):
                 exceptions.ScopeError: The token does not have permissions for
                     the requested operation
         """
-        self.send_request("/api/revoke", proxy=self.proxy, body={
+        self.send_request(url="/api/revoke", proxy=self.proxy, body={
             "revoke-all": revoke_all
         }, headers={"Authorization": "Bearer {}".format(token)})
 
@@ -291,7 +291,7 @@ class ExternalPayment(BasePayment):
             Returns:
                 A dictionary with status of an operation
         """
-        return cls.send_request("/api/instance-id", proxy=self.proxy, body={
+        return cls.send_request(url="/api/instance-id", proxy=self.proxy, body={
             "client_id": client_id
         })
 
@@ -310,7 +310,9 @@ class ExternalPayment(BasePayment):
                 about a recipient and payer
         """
         options['instance_id'] = self.instance_id
-        return self.send_request("/api/request-external-payment", proxy=self.proxy, body=options)
+        return self.send_request(url="/api/request-external-payment",
+                                 proxy=self.proxy,
+                                 body=options)
 
     def process(self, options):
         """
@@ -328,4 +330,6 @@ class ExternalPayment(BasePayment):
                 for authorization(if needed)
         """
         options['instance_id'] = self.instance_id
-        return self.send_request("/api/process-external-payment", proxy=self.proxy, body=options)
+        return self.send_request(url="/api/process-external-payment",
+                                 proxy=self.proxy,
+                                 body=options)
