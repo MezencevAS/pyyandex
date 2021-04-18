@@ -12,7 +12,7 @@ test_requirements = ['six', 'requests>2.4.0', 'future']
 
 setup(
     name='proxyyandexpy',
-    version='1.0.1',
+    version='1.0.2',
     author="Levent Duivel",
     include_package_data=True,
     packages=find_packages(),
